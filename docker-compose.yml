@@ -1,0 +1,35 @@
+version: '3.7'
+
+services:
+  temporal:
+    image: temporalio/auto-setup:1.21.5
+    ports:
+      - "7233:7233"           # SDK connection port
+    environment:
+      - DB=mysql
+      - DB_PORT=3306
+      - MYSQL_USER=temporal
+      - MYSQL_PWD=temporal
+      - MYSQL_SEEDS=mysql
+    depends_on:
+      - mysql
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=temporal
+      - MYSQL_USER=temporal
+      - MYSQL_PASSWORD=temporal
+      - MYSQL_DATABASE=temporal
+    ports:
+      - "3311:3306"
+    command: --default-authentication-plugin=mysql_native_password
+
+  temporal-ui:
+    image: temporalio/ui:latest
+    ports:
+      - "8088:8080"           # Web UI
+    environment:
+      - TEMPORAL_ADDRESS=temporal:7233
+    depends_on:
+      - temporal
