@@ -1,10 +1,11 @@
 package com.kasunjay.springtemporal.config;
 
+import com.kasunjay.springtemporal.activities.TravelActivitiesImpl;
+import com.kasunjay.springtemporal.workflow.TravelWorkflowImpl;
 import io.temporal.client.WorkflowClient;
 import io.temporal.serviceclient.WorkflowServiceStubs;
 import io.temporal.worker.Worker;
 import io.temporal.worker.WorkerFactory;
-import jakarta.annotation.PostConstruct;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,8 +30,8 @@ public class TemporalConfig {
         WorkerFactory factory = WorkerFactory.newInstance(client);
 
         Worker worker = factory.newWorker("TRAVEL_TASK_QUEUE");
-        worker.registerWorkflowImplementationTypes(null);
-        worker.registerActivitiesImplementations(null);
+        worker.registerWorkflowImplementationTypes(TravelWorkflowImpl.class);
+        worker.registerActivitiesImplementations(new TravelActivitiesImpl());
 
         return factory;
     }
@@ -45,11 +46,5 @@ public class TemporalConfig {
         return WorkflowServiceStubs.newInstance();
     }
 
-    /**
-     * Starts the Temporal worker after the Spring context is initialized.
-     */
-    @PostConstruct
-    public void startWorker() {
-        workerFactory(serviceStubs()).start();
-    }
+    
 }
